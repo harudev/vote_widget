@@ -30,8 +30,8 @@ REST.prototype.configureExpress = function(conn) {
 	app.use(bodyParser.urlencoded({extended:true}));
 	app.use(bodyParser.json());
 	var router = express.Router();
+	// app.use('/',);  템플릿용 라우팅 필요
 	app.use('/api',router);
-
 	var rest_router = new rest(router,conn);
 	self.startServer();
 }
