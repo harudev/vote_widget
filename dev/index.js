@@ -1,7 +1,7 @@
 var express = require('express');
 var mysql 	= require('mysql');
 var dbinfo 	= require('./database-settings.js');
-var rest 	= require('./rest.js');
+var rest 	= require('./REST.js');
 var app 	= express();
 
 function REST() {
@@ -26,7 +26,6 @@ REST.prototype.connectMysql = function () {
 REST.prototype.configureExpress = function(conn) {
 	var self = this;
 	app.set('port',process.env.PORT || 3000);
-	app.use(express.logger('dev'));
 	app.use(express.json());
 	app.use(express.urlencoded());
 	app.use(express.session());
