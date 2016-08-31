@@ -7,7 +7,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,conn) {
     router.get("/",function(req,res){
         res.json({"Message" : "Hello World !"});
     })
-    router.post("/api/movies",function(req,res) {
+    router.get("/movies",function(req,res) {
     	var query = "select * from movies";
     	conn.query(query, function(err,rows)
     	{

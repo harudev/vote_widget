@@ -1,5 +1,6 @@
-var express = require('express');
+var express	= require('express');
 var mysql 	= require('mysql');
+var bodyParser 	= require('body-parser');
 var dbinfo 	= require('./database-settings.js');
 var rest 	= require('./REST.js');
 var app 	= express();
@@ -26,9 +27,8 @@ REST.prototype.connectMysql = function () {
 REST.prototype.configureExpress = function(conn) {
 	var self = this;
 	app.set('port',process.env.PORT || 3000);
-	app.use(express.json());
-	app.use(express.urlencoded());
-	app.use(express.session());
+	app.use(bodyParser.urlencoded({extended:true}));
+	app.use(bodyParser.json());
 	var router = express.Router();
 	app.use('/api',router);
 
