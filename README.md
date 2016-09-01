@@ -33,8 +33,8 @@ API 사용을 위한 앱 등록 화면에서 앱 이름과 앱 설명, 앱의 �
 
 ## REST APIs
 - 영화정보 API
-> /APIKEY/movies?year=XXXX&genre=XXXX&country=XXXX
+> /APIKEY/movies?year=XXXX&genre=XXXX&country=XXXX<br/>
 > ※ 이 때 원하지 않는 조건인자 생략 가능
 - 영화정보 API
-> /APIKEY/movies?year=XXXX&genre=XXXX&country=XXXX
+> /APIKEY/movies?year=XXXX&genre=XXXX&country=XXXX<br/>
 > ※ 이 때 원하지 않는 조건인자 생략 가능
