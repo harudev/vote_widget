@@ -1,5 +1,4 @@
 # vote_widget
-- - -
 
 ## Introduction
 영화 선호 투표를 위한 REST API와 투표 위젯
