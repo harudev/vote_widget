@@ -9,18 +9,19 @@ REST_ROUTER.prototype.handleRoutes= function(router,conn) {
     })
 
     // 조건에 따라 영화 정보를 가져오는 API endpoint
-    router.get("/movies",function(req,res) 
+    router.get("/movies",function(req,res) { 
         var apikey = req.params.apikey;
         var host = req.hostname;
 
+	console.log(host + " / " + apikey);
+
         // API key 검증
         var query = "select * from apiclient where domain='"+host+"' and apikey='"+apikey+"';";
-
         conn.query(query, function(err,rows)
         {
             // API key 검증 쿼리 수행 에러시 에러 문구 리턴
             if(err) {
-                res.json({"Error":true, "Message":"Error excuting MySQL query..","Data":null});
+                res.json({"Error":true, "Message":"Error excuting apiclient query..","Data":null});
             }
             else
             {
@@ -36,7 +37,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,conn) {
                     var flag = false;
                     if(req.query.year) // 숫자만 입력되는지 검사할 것
                     {
-                        query = query + "year(primier)="+req.query.year;
+                        query = query + "year(premier)="+req.query.year;
                         flag = true;
                     }
                     if(req.query.genre)
@@ -60,11 +61,11 @@ REST_ROUTER.prototype.handleRoutes= function(router,conn) {
                         }
                     }
                     if(!flag) query = "select * from movies";
-
+			
                     conn.query(query, function(err,rows)
                     {
                         if(err) {
-                            res.json({"Error":true, "Message":"Error excuting MySQL query..","Data":null});
+                            res.json({"Error":true, "Message":"Error excuting select movie query..","Data":null});
                         }
                         else
                         {
