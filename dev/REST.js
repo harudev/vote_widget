@@ -76,7 +76,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,conn) {
         var apikey = req.params.apikey;
         var host = req.hostname;
         var apikey = req.params.apikey;
-        var user_id = req.query.user_id;
+        var user_id = apikey + req.query.user_id;
 
         var query = "select * from apiclient where domain='"+host+"' and apikey='"+apikey+"';";
         conn.query(query, function(err,rows) {
@@ -94,7 +94,8 @@ REST_ROUTER.prototype.handleRoutes= function(router,conn) {
                     if(user_id==undefined)
                         res.json({"Error":true, "Message":"User information undefined"});
                     else {
-                        var query = "select * from votes where user_id=select id from users where user_id='"req.params.apikey + req.query.user_id + "'";
+                        var query = "select * from votes where votes.user_id in (select id from users where users.user_id='" + user_id + "');";
+                        console.log(query);
                         conn.query(query, function(err,rows) {
                             if(err) {
                                 res.json({"Error":true, "Message":"Error excuting MySQL query..","Data":null});
@@ -139,13 +140,11 @@ REST_ROUTER.prototype.handleRoutes= function(router,conn) {
                         var query = "select id,user_name from users where user_id='" + apikey + req.body.user_id + "';";
 
                         conn.query(query,function(err,rows) {
-                            if (err)
-                            {
+                            if (err) {
                                 console.log(err);
                             }
-                            else
-                            {
-                                var query = "insert into votes(user_id, movie_id) select id," + req.body.movie_id
+                            else {
+                                query = "insert into votes(user_id, movie_id) select id," + req.body.movie_id
                                     + " from users where user_id='"+req.params.apikey + req.body.user_id + "'";
 
                                 console.log(query);
@@ -154,10 +153,17 @@ REST_ROUTER.prototype.handleRoutes= function(router,conn) {
                                         console.log(err);
                                         res.json({"Error":true, "Message":"Error excuting MySQL query.."});
                                     }
-                                    else
-                                    {
-                                        console.log("Success");
-                                        res.json({"Error":false, "Message":"Success"});
+                                    else {
+                                        query = "update movies set vote_count = vote_count + 1 where id = "+req.body.movie_id;
+                                        conn.query(query, function(err,rows) {
+                                            if(err) {
+                                                console.log(err);
+                                                res.json({"Error":true, "Message":"Error updating vote count.."});
+                                            }
+                                            else{
+                                                res.json({"Error":false, "Message":"Success"});
+                                            }
+                                        });
                                     }
                                 });
                             }

@@ -31,24 +31,26 @@ class MovieList extends Component {
 				data:response.data.Data
 			});
 		}.bind(this));
-		axios.get(constants.serverName +'/api/vote/'+constants.APIKEY+"?"+this.props.user_id,{responseType: 'json'}).then(function(response)
+		axios.get(constants.serverName +'/api/vote/'+constants.APIKEY+"?user_id="+this.props.user_id,{responseType: 'json'}).then(function(response)
 		{
-			this.setState({
-				Voted:true
-			});
+			if (response.data.Data != null)
+				this.setState({
+					Voted:true,
+					votedIndex:response.data.Data[0].movie_id
+				});
 		}.bind(this));
 	}
 	render() {
 		const self=this;
-		var movies = this.state.data.map((movie, index) =>{
+		var movies = this.state.data.map((movie) =>{
 			if(this.state.Voted) {
-				if(index == this.state.votedIndex)
+				if(movie.id == this.state.votedIndex)
 					return <MovieItem key={movie.id} Voted='T' movie={movie}/>
 				else
 					return <MovieItem key={movie.id} Finished='T'  movie={movie}/>			
 			}
 			else {
-				return <MovieItem key={movie.id} onClick={this.handleClick.bind(this, self, index, movie.id, this.props.user_id)} movie={movie}/>			
+				return <MovieItem key={movie.id} onClick={this.handleClick.bind(this, self, movie.id, this.props.user_id)} movie={movie}/>			
 			}			
 		});
 		return (
@@ -59,7 +61,7 @@ class MovieList extends Component {
 			</div>
 		);
 	}
-	handleClick(self, index, key, user_id, ev)
+	handleClick(self, key, user_id, ev)
 	{
 		if(this.state.Voted) { // 투표를 완료한 사용자의 경우
 			console.log("Already Voted");
@@ -75,7 +77,7 @@ class MovieList extends Component {
 			}).then(function(response) {
 				console.log(response.data.Message);
 				if(!response.data.Error) {
-					self.setState({Voted:true, votedIndex:index},function() {
+					self.setState({Voted:true, votedIndex:key},function() {
 							self.loadData();
 						});
 				}
