@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "RESTapi and react compont for voting favorite movie",
   "author": "ruci.k",
+  "main":"index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./dev/index.js",
+    "start": "node server",
     "build": "node_modules/.bin/webpack",
     "build-dev": "node_modules/.bin/webpack-dev-server --progress"
   },

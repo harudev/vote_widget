@@ -6,12 +6,43 @@ function REST_ROUTER(router,conn) {
 }
 
 REST_ROUTER.prototype.handleRoutes= function(router,conn) {
-    router.get("/",function(req,res){
-        res.json({"Message" : "Hello World !"});
-    })
+    // 전체 투표수를 가져오는 api
+    router.get("/stat/sum/:apikey",function(req,res) { 
+        var apikey = req.params.apikey;
+        var host = req.hostname;
+
+        // API key 검증
+        var query = "select * from apiclient where domain='"+host+"' and apikey='"+apikey+"';";
+        conn.query(query, function(err,rows)
+        {
+            // API key 검증 쿼리 수행 에러시 에러 문구 리턴
+            if(err) {
+                res.json({"Error":true, "Message":"Error excuting apiclient query..","Data":null});
+            }
+            else {
+                // 매칭되는 API key가 존재하지 않을 시 에러 문구 리턴
+                if(rows.length == 0) {
+                    res.json({"Error":true, "Message":"Matched API key does not exist","Data":null});
+                }
+                // 매칭되는 API key가 존재할 경우 데이터 조회 후 리턴
+                else {
+                    var query = "select sum(vote_count) as sum from movies";
+                    conn.query(query, function(err,rows) {
+                        if(err) {
+                            res.json({"Error":true, "Message":"Error excuting select movie query..","Data":null});
+                        }
+                        else {
+                            console.log(rows);
+                            res.json({"Error":false, "Message":"Success","Data":rows});
+                        }
+                    });
+                }
+            }
+        });
+    });
 
     // 조건에 따라 영화 정보를 가져오는 API endpoint
-    router.get("/api/movies/:apikey",function(req,res) { 
+    router.get("/movies/:apikey",function(req,res) { 
         var apikey = req.params.apikey;
         var host = req.hostname;
 
@@ -97,7 +128,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,conn) {
     });
 
     // 투표조회 API endpoint
-    router.get("/api/vote/:apikey",function(req,res){ 
+    router.get("/vote/:apikey",function(req,res){ 
         var apikey = req.params.apikey;
         var host = req.hostname;
         var apikey = req.params.apikey;
@@ -128,7 +159,6 @@ REST_ROUTER.prototype.handleRoutes= function(router,conn) {
                                 row = rows[0];
                                 if (row) {
                                     query = "select votes.user_id, users.user_name, votes.movie_id, movies.title, movies.vote_count from votes, users, movies where users.id = " + row.user_id+ " and movies.id = '"+row.movie_id+"';";
-                                    console.log(query);
                                     conn.query(query, function(err,rows) {
                                         if(err) {
                                             res.json({"Error":true, "Message":"Error excuting MySQL query..","Data":null});
@@ -151,7 +181,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,conn) {
 
 
     // 투표추가 API endpoint  
-    router.post("/api/vote/:apikey", function(req,res){
+    router.post("/vote/:apikey", function(req,res){
         var apikey = req.params.apikey;
         var host = req.hostname;
         var movie_id = req.body.movie_id;
