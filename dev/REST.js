@@ -9,11 +9,11 @@ REST_ROUTER.prototype.handleRoutes= function(router,conn) {
     })
 
     // 조건에 따라 영화 정보를 가져오는 API endpoint
-    router.get("/movies",function(req,res) { 
+    router.get("/api/movies/:apikey",function(req,res) { 
         var apikey = req.params.apikey;
         var host = req.hostname;
 
-	console.log(host + " / " + apikey);
+	   console.log(host + " / " + apikey);
 
         // API key 검증
         var query = "select * from apiclient where domain='"+host+"' and apikey='"+apikey+"';";

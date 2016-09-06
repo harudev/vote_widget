@@ -29,9 +29,14 @@ REST.prototype.configureExpress = function(conn) {
 	app.set('port',process.env.PORT || 3000);
 	app.use(bodyParser.urlencoded({extended:true}));
 	app.use(bodyParser.json());
+	app.use(function(req, res, next) {
+	  res.header("Access-Control-Allow-Origin", "*");
+	  res.header("Access-Control-Allow-Headers", "X-Requested-With");
+	  next();
+	});
 	var router = express.Router();
 	// app.use('/',);  템플릿용 라우팅 필요
-	app.use('/:apikey',router);
+	app.use(router);
 	var rest_router = new rest(router,conn);
 	self.startServer();
 }
