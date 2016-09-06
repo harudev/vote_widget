@@ -1,3 +1,5 @@
+var bodyParser = require('body-parser')
+
 function REST_ROUTER(router,conn) {
     var self = this;
     self.handleRoutes(router,conn);
@@ -13,8 +15,6 @@ REST_ROUTER.prototype.handleRoutes= function(router,conn) {
         var apikey = req.params.apikey;
         var host = req.hostname;
 
-	   console.log(host + " / " + apikey);
-
         // API key 검증
         var query = "select * from apiclient where domain='"+host+"' and apikey='"+apikey+"';";
         conn.query(query, function(err,rows)
@@ -23,11 +23,9 @@ REST_ROUTER.prototype.handleRoutes= function(router,conn) {
             if(err) {
                 res.json({"Error":true, "Message":"Error excuting apiclient query..","Data":null});
             }
-            else
-            {
+            else {
                 // 매칭되는 API key가 존재하지 않을 시 에러 문구 리턴
-                if(rows.length == 0)
-                {
+                if(rows.length == 0) {
                     res.json({"Error":true, "Message":"Matched API key does not exist","Data":null});
                 }
                 // 매칭되는 API key가 존재할 경우 데이터 조회 후 리턴
@@ -35,13 +33,11 @@ REST_ROUTER.prototype.handleRoutes= function(router,conn) {
                 {
                     var query = "select * from movies where ";
                     var flag = false;
-                    if(req.query.year) // 숫자만 입력되는지 검사할 것
-                    {
+                    if(req.query.year) {// 숫자만 입력되는지 검사할 것
                         query = query + "year(premier)="+req.query.year;
                         flag = true;
                     }
-                    if(req.query.genre)
-                    {
+                    if(req.query.genre) {
                         if(flag) {
                             query = query + "and genre=" + req.query.genre;
                         }
@@ -50,8 +46,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,conn) {
                             flag = true;
                         }
                     }
-                    if(req.query.country)
-                    {
+                    if(req.query.country) {
                         if(flag) {
                             query = query + "and country=" + req.query.country;
                         }
@@ -62,8 +57,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,conn) {
                     }
                     if(!flag) query = "select * from movies";
 			
-                    conn.query(query, function(err,rows)
-                    {
+                    conn.query(query, function(err,rows) {
                         if(err) {
                             res.json({"Error":true, "Message":"Error excuting select movie query..","Data":null});
                         }
@@ -77,37 +71,102 @@ REST_ROUTER.prototype.handleRoutes= function(router,conn) {
         })
     });
 
-    // 투표결과 처리를 위한 API endpoint
-    // 중복 투표를 어떻게 막을 것인가?
-    // 내용 추가 필요
-    router.get("/votes",function(req,res){ 
-        var query = "select * from users";
-        conn.query(query, function(err,rows)
-        {
-            if(err) {
-                res.json({"Error":true, "Message":"Error excuting MySQL query..","Data":null});
-            }
-            else
-            {
-                res.json({"Error":false, "Message":"Success","Data":rows});
-            }
-        })
-    });
-    router.post("/votes",function(req,res){
-        var query = "insert into ??(??,??) values (?,?)";
-        var param = ["users","name","movie_id",req.body.username, req.body.movie_id];
+    // 투표조회 API endpoint
+    router.get("/api/vote/:apikey",function(req,res){ 
+        var apikey = req.params.apikey;
+        var host = req.hostname;
+        var apikey = req.params.apikey;
+        var user_id = req.query.user_id;
 
-        query = mysql.format(query, table);
-       conn.query(query, function(err,rows)
-        {
+        var query = "select * from apiclient where domain='"+host+"' and apikey='"+apikey+"';";
+        conn.query(query, function(err,rows) {
+            // API key 검증 쿼리 수행 에러시 에러 문구 리턴
             if(err) {
-                res.json({"Error":true, "Message":"Error excuting MySQL query.."});
+                res.json({"Error":true, "Message":"Error excuting apiclient query.."});
             }
-            else
-            {
-                res.json({"Error":false, "Message":"Success"});
+            else {
+                // 매칭되는 API key가 존재하지 않을 시 에러 문구 리턴
+                if(rows.length == 0){
+                    res.json({"Error":true, "Message":"Matched API key does not exist"});
+                }
+                // 매칭되는 API key가 존재할 경우 데이터 조회 후 리턴
+                else {
+                    if(user_id==undefined)
+                        res.json({"Error":true, "Message":"User information undefined"});
+                    else {
+                        var query = "select * from votes where user_id=select id from users where user_id='"req.params.apikey + req.query.user_id + "'";
+                        conn.query(query, function(err,rows) {
+                            if(err) {
+                                res.json({"Error":true, "Message":"Error excuting MySQL query..","Data":null});
+                            }
+                            else {
+                                res.json({"Error":false, "Message":"Success","Data":rows});
+                            }
+                        })
+                    }
+                }
             }
-        })        
+        });        
+    });
+
+
+    // 투표추가 API endpoint  
+    router.post("/api/vote/:apikey", function(req,res){
+        var apikey = req.params.apikey;
+        var host = req.hostname;
+        var movie_id = req.body.movie_id;
+        var user_id = req.body.user_id;
+
+        if(movie_id == undefined || user_id == undefined)
+            res.json({"Error":true, "Message":"Error in form data"});
+        else
+        {
+            user_id = req.params.apikey + req.body.user_id;
+            // API key 검증
+            var query = "select * from apiclient where domain='"+host+"' and apikey='"+apikey+"';";
+            conn.query(query, function(err,rows) {
+                // API key 검증 쿼리 수행 에러시 에러 문구 리턴
+                if(err) {
+                    res.json({"Error":true, "Message":"Error excuting apiclient query.."});
+                }
+                else {
+                    // 매칭되는 API key가 존재하지 않을 시 에러 문구 리턴
+                    if(rows.length == 0){
+                        res.json({"Error":true, "Message":"Matched API key does not exist"});
+                    }
+                    // 매칭되는 API key가 존재할 경우 vote 추가 후 결과
+                    else {
+                        var query = "select id,user_name from users where user_id='" + apikey + req.body.user_id + "';";
+
+                        conn.query(query,function(err,rows) {
+                            if (err)
+                            {
+                                console.log(err);
+                            }
+                            else
+                            {
+                                var query = "insert into votes(user_id, movie_id) select id," + req.body.movie_id
+                                    + " from users where user_id='"+req.params.apikey + req.body.user_id + "'";
+
+                                console.log(query);
+                                conn.query(query, function(err,rows) {
+                                    if(err) {
+                                        console.log(err);
+                                        res.json({"Error":true, "Message":"Error excuting MySQL query.."});
+                                    }
+                                    else
+                                    {
+                                        console.log("Success");
+                                        res.json({"Error":false, "Message":"Success"});
+                                    }
+                                });
+                            }
+                        })
+                        
+                    }
+                }
+            });
+        }
     });
 }
 

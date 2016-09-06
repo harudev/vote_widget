@@ -1,6 +1,6 @@
 module.exports = {
 	devtool:'eval-source-map',
-	entry:__dirname + "/reactapps/vote.js",
+	entry:__dirname + "/reactapps/app.js",
 	output: {
 		path: __dirname + "/dist",
 		filename: "bundle.js"

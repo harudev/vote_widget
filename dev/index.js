@@ -27,13 +27,14 @@ REST.prototype.connectMysql = function () {
 REST.prototype.configureExpress = function(conn) {
 	var self = this;
 	app.set('port',process.env.PORT || 3000);
-	app.use(bodyParser.urlencoded({extended:true}));
-	app.use(bodyParser.json());
 	app.use(function(req, res, next) {
 	  res.header("Access-Control-Allow-Origin", "*");
+	  res.header("Access-Control-Allow-Headers", "Content-Type");
 	  res.header("Access-Control-Allow-Headers", "X-Requested-With");
 	  next();
 	});
+	app.use(bodyParser.urlencoded({extended:true}));
+	app.use(bodyParser.json());
 	var router = express.Router();
 	// app.use('/',);  템플릿용 라우팅 필요
 	app.use(router);
