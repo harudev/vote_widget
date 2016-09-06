@@ -29,13 +29,28 @@ REST_ROUTER.prototype.handleRoutes= function(router,conn) {
                     res.json({"Error":true, "Message":"Matched API key does not exist","Data":null});
                 }
                 // 매칭되는 API key가 존재할 경우 데이터 조회 후 리턴
-                else
-                {
+                else {
                     var query = "select * from movies where ";
                     var flag = false;
-                    if(req.query.year) {// 숫자만 입력되는지 검사할 것
-                        query = query + "year(premier)="+req.query.year;
+                    if(req.query.search) {
+                        query = query + "title like '%"+req.query.search+"%' ";
                         flag = true;
+                    }
+                    if(req.query.year) {// 숫자만 입력되는지 검사할 것
+                        try {
+                            var year = Number(req.query.year);
+                            if(flag) {
+                                query = query + "and year(premier)="+year;
+                            }
+                            else {
+                                query = query + "year(premier)="+year;
+                                flag = true;
+                            }
+                                
+                        }
+                        catch (err) {
+                            res.json({"Error":true, "Message":"year parameter is not a number","Data":null});
+                        }
                     }
                     if(req.query.genre) {
                         if(flag) {
@@ -55,7 +70,17 @@ REST_ROUTER.prototype.handleRoutes= function(router,conn) {
                             flag = true;
                         }
                     }
-                    if(!flag) query = "select * from movies";
+
+                    if(!flag) query = "select * from movies ";
+
+                    // 투표수 순 정렬
+                    query = query + "order by vote_count desc ";
+
+                    // 한 화면에 보여줄 영화 수 (기본 5개)
+                    if (req.query.limit)
+                        query = query + "limit " + req.query.limit;
+                    else
+                        query = query + "limit " + 5;
 			
                     conn.query(query, function(err,rows) {
                         if(err) {
@@ -94,14 +119,28 @@ REST_ROUTER.prototype.handleRoutes= function(router,conn) {
                     if(user_id==undefined)
                         res.json({"Error":true, "Message":"User information undefined"});
                     else {
-                        var query = "select * from votes where votes.user_id in (select id from users where users.user_id='" + user_id + "');";
-                        console.log(query);
+                        query = "select user_id, movie_id from votes where votes.user_id in (select id from users where users.user_id='" + user_id + "');";
                         conn.query(query, function(err,rows) {
                             if(err) {
                                 res.json({"Error":true, "Message":"Error excuting MySQL query..","Data":null});
                             }
                             else {
-                                res.json({"Error":false, "Message":"Success","Data":rows});
+                                row = rows[0];
+                                if (row) {
+                                    query = "select votes.user_id, users.user_name, votes.movie_id, movies.title, movies.vote_count from votes, users, movies where users.id = " + row.user_id+ " and movies.id = '"+row.movie_id+"';";
+                                    console.log(query);
+                                    conn.query(query, function(err,rows) {
+                                        if(err) {
+                                            res.json({"Error":true, "Message":"Error excuting MySQL query..","Data":null});
+                                        }
+                                        else {
+                                            res.json({"Error":false, "Message":"Success","Data":rows});
+                                        }
+                                    })
+                                }
+                                else {
+                                    res.json({"Error":false, "Message":"Success","Data":row});
+                                }
                             }
                         })
                     }

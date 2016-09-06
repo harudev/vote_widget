@@ -4,28 +4,20 @@ import constants from './constants';
 import styles from '../css/vote.css';
 
 class Vote extends Component {
-	render() {
-		return (
-			<div className={styles.app}>
-				<div className={styles.apptitle}>당신이 가장 좋아하는 영화는?</div>
-				<MovieList query={this.props.query} user_id={this.props.user_id}/>
-			</div>
-		);
-	}
-}
-
-class MovieList extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
+			title:"당신이 가장 좋아하는 영화는?",
+			result:"",
 			Voted:false,
 			votedIndex:0,
-			data:[]
+			data:[],
+			query:""
 		}
 		this.loadData();
 	}
 	loadData() {
-		axios.get(constants.serverName +'/api/movies/'+constants.APIKEY+"?"+this.props.query,{responseType: 'json'}).then(function(response)
+		axios.get(constants.serverName +'/api/movies/'+constants.APIKEY+"?search="+this.state.query+"&"+this.props.query,{responseType: 'json'}).then(function(response)
 		{
 			this.setState({
 				data:response.data.Data
@@ -33,11 +25,15 @@ class MovieList extends Component {
 		}.bind(this));
 		axios.get(constants.serverName +'/api/vote/'+constants.APIKEY+"?user_id="+this.props.user_id,{responseType: 'json'}).then(function(response)
 		{
-			if (response.data.Data != null)
+			if (response.data.Data != null) {
+				var result = response.data.Data[0];
 				this.setState({
 					Voted:true,
-					votedIndex:response.data.Data[0].movie_id
+					votedIndex:result.movie_id,
+					title:result.user_name + " 님의 투표 결과",
+					result:"투표하신 영화 '" + result.title + "'는 총 투표수 중 %의 표를 획득하여 %위를 기록하고 있습니다."
 				});
+			}
 		}.bind(this));
 	}
 	render() {
@@ -50,19 +46,27 @@ class MovieList extends Component {
 					return <MovieItem key={movie.id} Finished='T'  movie={movie}/>			
 			}
 			else {
-				return <MovieItem key={movie.id} onClick={this.handleClick.bind(this, self, movie.id, this.props.user_id)} movie={movie}/>			
+				return <MovieItem key={movie.id} onClick={this.handleClick.bind(this, movie.id, this.props.user_id)} movie={movie}/>			
 			}			
 		});
 		return (
-			<div className={styles.movieList}>
+			<div className={styles.app}>
+				<div className={styles.apptitle}>{this.state.title}</div>
 				<ul className={styles.list}>
 					{movies}
 				</ul>
+				<div className={styles.searchApp}>
+					<div>
+						또는...
+					</div>
+					<SearchItem changeFunc={this.handleSearch.bind(this)}/>
+				</div>
+				<div className={styles.result}>{this.state.result}</div>
 			</div>
 		);
 	}
-	handleClick(self, key, user_id, ev)
-	{
+	handleClick(key, user_id, ev) {
+		const self = this;
 		if(this.state.Voted) { // 투표를 완료한 사용자의 경우
 			console.log("Already Voted");
 		}
@@ -85,16 +89,14 @@ class MovieList extends Component {
 		}
 		
 	}
+
+	handleSearch(querystring) {
+		this.setState({query:querystring});
+		this.loadData();
+	}
 }
 
 class MovieItem extends Component {
-	constructor()
-	{
-		super();
-		this.state = {
-			opened:false
-		}
-	}
 	render() {
 		let itemVoted;
 		if(this.props.Voted) {
@@ -126,4 +128,29 @@ class MovieItem extends Component {
 	}
 }
 
+class SearchItem extends Component {
+	constructor ()
+	{
+		super();
+		this.state = {
+			placeholder:"찾으시려는 영화명을 입력하세요 :)",
+			value:""
+		}
+		this.propTypes = {
+			changeFunc:React.PropTypes.func
+		}
+	}
+	render () {
+		return <input id="search-querystring" type="text" placeholder={this.state.placeholder} onKeyUp={this.handleChange.bind(this)} onFocus={this.handleFocus.bind(this)}/>;
+	}
+	handleChange(e) {
+		this.setState({
+			value:e.target.value
+		});
+		this.props.changeFunc(e.target.value);
+	}
+	handleFocus() {
+		document.getElementById('search-querystring').value='';
+	}
+}
 export default Vote;
