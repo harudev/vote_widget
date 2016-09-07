@@ -1,6 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 import constants from '../constants';
+import styles from '../../css/vote.css';
 import ResultMovieItem from './result-movie-item';
 
 class VoteResult extends React.Component {

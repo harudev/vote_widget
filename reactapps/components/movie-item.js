@@ -1,6 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 import constants from '../constants';
+import styles from '../../css/movie-item.css';
 
 class MovieItem extends React.Component {
 	render() {
