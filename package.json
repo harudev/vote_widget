@@ -5,10 +5,10 @@
   "author": "ruci.k",
   "main": "index.js",
   "scripts": {
-    "start": "node server",                                                         // node 서버 실행
-    "build": "node_modules/.bin/webpack",                                           // webpack 적용
-    "build-dev": "node_modules/.bin/webpack-dev-server --progress",                 // webpack 적용 후 개발 서버 실행
-    "build-run": "node_modules/.bin/webpack --progress && node ./public/server.js"  // webpack 적용 후 실행
+    "start": "node server",
+    "build": "node_modules/.bin/webpack",
+    "build-dev": "node_modules/.bin/webpack-dev-server --progress",
+    "build-run": "node_modules/.bin/webpack --progress && node ./public/server.js"
   },
   "repository": {
     "type": "git",
