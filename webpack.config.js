@@ -5,9 +5,9 @@ module.exports = [{
 	name:'browser',
 	devtool:'eval-source-map',
 	entry:__dirname + "/server/browser.js",
-	// entry:__dirname+"/reactapps/app.js",
 	output: {
 		path: __dirname + "/public",
+		publicPath:'/public/',
 		filename: "bundle.js"
 	},
 	module:{
@@ -38,9 +38,6 @@ module.exports = [{
 		historyApiFailback:true,
 		inline:true,
 		port:4000
-	},
-	resolve : {
-		root:__dirname
 	}
 },
 {
@@ -49,6 +46,9 @@ module.exports = [{
 		app:['./server/index.js'],
 	},
 	target:'node',
+	node:{
+		__dirname:false
+	},
 	externals: [nodeExternals()],
 	module:{
 		loaders: [
@@ -75,9 +75,7 @@ module.exports = [{
 	output: {
 		path:'./public',
 		filename:'server.js',
+		publicPath:'/public/',
 		libraryTarget:'commonjs2'
-	},
-	resolve : {
-		root:__dirname
 	}
 }];

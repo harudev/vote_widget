@@ -1,0 +1,104 @@
+.app {
+	width:400px;
+	margin:0 auto;
+	padding:0;
+}
+.apptitle {
+	padding:12px 5px;
+	text-align:center;
+}
+.list {
+	padding:0;
+}
+
+.searchApp {
+	text-align:center;
+	padding:5px;
+}
+.searchApp > div {
+	padding:10px;
+}
+input {
+	display:inline-block;
+	width:100%;
+	padding: 5px 12px;
+	line-height:20px;
+	font-size:14px;
+	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+    box-sizing: border-box;         /* Opera/IE 8+ */
+}
+.item {
+	list-style: none;
+	padding:0px 5px;
+	margin:5px;
+	border:1px solid #ddd;
+}
+
+.item {
+	line-height: 14px;
+	cursor:pointer;
+}
+
+.item:hover {
+	background-color:#aaa;
+	color:#fff;
+}
+
+.itemBasic {
+	padding:10px;
+	vertical-align: middle;
+}
+
+.itemMO {
+	display:none;
+	border-top:1px solid #efefef;
+	padding:10px;
+}
+
+.item:hover > .itemMO {
+	display:block;
+}
+
+.director_name {
+	font-size:.7em;
+}
+
+.premier {
+	font-size:.7em;
+}
+.item,
+.itemFinished,
+.itemSelected {
+	list-style: none;
+	padding:0px 5px;
+	margin:5px;
+	border:1px solid #ddd;
+}
+
+.itemSelected {
+	background-color:#ffdddd;
+	background-size:50%;
+}
+.itemBasic {
+	padding:10px;
+	vertical-align: middle;
+}
+
+.voted {
+	font-size:.7em;
+	color:#ff0000;
+	border:1px solid #ff0000;
+	padding:1px 2px;
+}
+.director_name {
+	font-size:.7em;
+}
+
+.premier {
+	font-size:.7em;
+}
+
+.rate {
+	float:right;
+}

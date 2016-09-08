@@ -15,7 +15,7 @@ class Vote extends React.Component {
 	componentDidMount() {
 		axios.get(constants.serverName +'/api/vote/'+constants.APIKEY+"?user_id="+this.props.params.user,{responseType: 'json'}).then(function(response) {
 			if (response.data.Data != null) {
-				this.props.history.replaceState(null,'/vote_result');
+				this.context.router.replace('/vote_result/'+this.props.params.user,null);
 			}
 			else {
 				if (!this.props.data) {
@@ -25,7 +25,6 @@ class Vote extends React.Component {
 				}
 			}
 		}.bind(this));
-		
 	}
 	
 	render() {
@@ -60,7 +59,7 @@ class Vote extends React.Component {
 			headers:{'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'},
 		}).then(function(response) {
 			if(!response.data.Error) {
-				this.props.history.replaceState(null,'/vote_result');
+				this.context.router.replace('/vote_result/'+this.props.params.user,null);
 			}
 		}).catch(function(err){});		
 	}
@@ -76,7 +75,6 @@ class SearchItem extends React.Component {
 	{
 		super();
 		this.state = {
-			placeholder:"찾으시려는 영화명을 입력하세요 :)",
 			value:""
 		}
 		this.propTypes = {
@@ -84,7 +82,7 @@ class SearchItem extends React.Component {
 		}
 	}
 	render () {
-		return <input id="search-querystring" type="text" placeholder={this.state.placeholder} onKeyUp={this.handleChange.bind(this)} onFocus={this.handleFocus.bind(this)}/>;
+		return <input id="search-querystring" type="text" placeholder="찾으시려는 영화명을 입력하세요 :)" onKeyUp={this.handleChange.bind(this)} onFocus={this.handleFocus.bind(this)}/>;
 	}
 	handleChange(e) {
 		this.setState({
@@ -104,6 +102,10 @@ Vote.propTypes = {
 Vote.loadData = () => {
 	return axios.get(constants.serverName +'/api/movies/'+constants.APIKEY,{responseType: 'json'})
 		.then((response) => response.data);
+};
+
+Vote.contextTypes = {
+  router: React.PropTypes.object.isRequired
 };
 
 export default Vote;

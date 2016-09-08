@@ -15,21 +15,17 @@ class VoteResult extends React.Component {
 		}
 	}
 	componentDidMount() {
-		if (!this.props.initialData) {
-			this.loadData().then(data => {
-				this.setState({data})
+		if (!this.props.data) {
+			VoteResult.loadData().then( (data) => {
+				this.setState({data:data.Data})
 			});
 		}
 		this.loadInfo();
 	}
-	loadData() {
-		axios.get(constants.serverName +'/api/movies/'+constants.APIKEY+"?search="+this.state.query+"&"+this.props.query,{responseType: 'json'}).then(function(response) {
-			return response.data.Data;
-		});
-	}
 
 	loadInfo() {
-		axios.get(constants.serverName +'/api/vote/'+constants.APIKEY+"?user_id="+this.props.user_id,{responseType: 'json'}).then(function(response) {
+		axios.get(constants.serverName +'/api/vote/'+constants.APIKEY+"?user_id="+this.props.params.user,{responseType: 'json'}).then(function(response) {
+			// 투표를 완료한 사용자만 결과를 볼 수 있도록
 			if (response.data.Data != null) {
 				var result = response.data.Data[0];
 				this.setState({
@@ -45,8 +41,8 @@ class VoteResult extends React.Component {
 				
 			}
 			else {
-				alert("투표를 완료한 사용자만 결과를 볼 수 있습니다. 투표 페이지로 이동합니다.");
-				this.props.history.replaceState(null,'/vote');
+				// 투표를 하지 않은 경우 투표페이지로 이동한다.
+				this.context.router.replace('/vote/'+this.props.params.user,null);
 			}
 		}.bind(this));
 	}
@@ -54,18 +50,32 @@ class VoteResult extends React.Component {
 		const self=this;
 		var movies = this.state.data.map((movie) =>{
 			if(movie.id == this.state.votedMovieId)
-				return <ResultMovieItem key={movie.id} Voted='T' movie={movie} sum={this.state.sum}/>;
+				return <ResultMovieItem key={movie.id} Voted='T' movie={movie} sum={this.state.sum}/>; // 사용자가 투표한 영화 - 사용자가 투표한 영화 리스트에 없을 경우 처리 필요
 			else
-				return <ResultMovieItem key={movie.id} movie={movie} sum={this.state.sum}/>;
+				return <ResultMovieItem key={movie.id} movie={movie} sum={this.state.sum}/>; // 그 외 영화
 		});
 		return (
-			<div className={styles.app}>
-				<div className={styles.apptitle}>{this.state.title}</div>
-				<ul className={styles.list}>
+			<div className="app">
+				<div className="apptitle">{this.state.title}</div>
+				<ul className="list">
 					{movies}
 				</ul>
 			</div>
 		);
 	}
 }
+
+VoteResult.propTypes = {
+	initialData:React.PropTypes.any
+};
+
+VoteResult.loadData = () => {
+	return axios.get(constants.serverName +'/api/movies/'+constants.APIKEY,{responseType: 'json'})
+		.then((response) => response.data);
+};
+
+VoteResult.contextTypes = {
+  router: React.PropTypes.object.isRequired
+};
+
 export default VoteResult;

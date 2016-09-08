@@ -1,11 +1,11 @@
-var bodyParser = require('body-parser')
+var bodyParser = require('body-parser');
+var express = require('express');
 
-function REST_ROUTER(router,conn) {
-    var self = this;
-    self.handleRoutes(router,conn);
-}
 
-REST_ROUTER.prototype.handleRoutes= function(router,conn) {
+module.exports = function(conn) {
+    'use strict';
+    var router = express.Router();
+
     // 전체 투표수를 가져오는 api
     router.get("/stat/sum/:apikey",function(req,res) { 
         var apikey = req.params.apikey;
@@ -32,7 +32,6 @@ REST_ROUTER.prototype.handleRoutes= function(router,conn) {
                             res.json({"Error":true, "Message":"Error excuting select movie query..","Data":null});
                         }
                         else {
-                            console.log(rows);
                             res.json({"Error":false, "Message":"Success","Data":rows});
                         }
                     });
@@ -45,9 +44,9 @@ REST_ROUTER.prototype.handleRoutes= function(router,conn) {
     router.get("/movies/:apikey",function(req,res) { 
         var apikey = req.params.apikey;
         var host = req.hostname;
-
         // API key 검증
         var query = "select * from apiclient where domain='"+host+"' and apikey='"+apikey+"';";
+
         conn.query(query, function(err,rows)
         {
             // API key 검증 쿼리 수행 에러시 에러 문구 리턴
@@ -156,7 +155,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,conn) {
                                 res.json({"Error":true, "Message":"Error excuting MySQL query..","Data":null});
                             }
                             else {
-                                row = rows[0];
+                                var row = rows[0];
                                 if (row) {
                                     query = "select votes.user_id, users.user_name, votes.movie_id, movies.title, movies.vote_count from votes, users, movies where users.id = " + row.user_id+ " and movies.id = '"+row.movie_id+"';";
                                     conn.query(query, function(err,rows) {
@@ -169,7 +168,7 @@ REST_ROUTER.prototype.handleRoutes= function(router,conn) {
                                     })
                                 }
                                 else {
-                                    res.json({"Error":false, "Message":"Success","Data":row});
+                                    res.json({"Error":false, "Message":"Success","Data":null});
                                 }
                             }
                         })
@@ -216,7 +215,6 @@ REST_ROUTER.prototype.handleRoutes= function(router,conn) {
                                 query = "insert into votes(user_id, movie_id) select id," + req.body.movie_id
                                     + " from users where user_id='"+req.params.apikey + req.body.user_id + "'";
 
-                                console.log(query);
                                 conn.query(query, function(err,rows) {
                                     if(err) {
                                         console.log(err);
@@ -243,6 +241,6 @@ REST_ROUTER.prototype.handleRoutes= function(router,conn) {
             });
         }
     });
-}
 
-module.exports = REST_ROUTER;
+    return router;
+}

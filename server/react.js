@@ -16,13 +16,8 @@ module.exports = function() {
 		return props;
 	};
 
+	// 렌더링 할 경우 컴포넌트에서 loadData 함수를 찾아 초기 데이터를 가져온 후 index.ejs 파일에 렌더링한다.
 	let renderRoute = (response, renderProps) => {
-		// response.render('index', {
-		// 		reactInitialData:null,
-		// 		content:renderToString(
-		// 			<RouterContext {...renderProps} />
-		// 			)
-		// 		});
 		let routesProps = getPropsFromRoute (renderProps, ['loadData']);
 		if (routesProps.loadData) {
 			routesProps.loadData().then((data) => {

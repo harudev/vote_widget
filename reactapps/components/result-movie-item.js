@@ -7,23 +7,23 @@ class ResultMovieItem extends React.Component {
 		let rate = String(this.props.movie.vote_count * 100 / this.props.sum) + " %";
 		if(this.props.Voted) {
 			return (
-				<li className={styles.itemSelected} onClick={this.props.onClick}>
-					<div className={styles.itemBasic}>
-					<span className={styles.voted}>voted</span> 
-					{this.props.movie.title} <span className={styles.director_name}>by {this.props.movie.director_name}</span>
-					<span className={styles.premier}>({this.props.movie.premier.substr(0,4)})</span>
-					<span className={styles.rate}>{rate}</span>
+				<li className="itemSelected" onClick={this.props.onClick}>
+					<div className="itemBasic">
+					<span className="voted">voted</span> 
+					{this.props.movie.title} <span className="director_name">by {this.props.movie.director_name}</span>
+					<span className="premier">({this.props.movie.premier.substr(0,4)})</span>
+					<span className="rate">{rate}</span>
 					</div>
 				</li>
 			);
 		}
 		else {
 			return (
-				<li className={styles.itemFinished} onClick={this.props.onClick}>
-					<div className={styles.itemBasic}>
-					{this.props.movie.title} <span className={styles.director_name}>by {this.props.movie.director_name}</span>
-					<span className={styles.premier}>({this.props.movie.premier.substr(0,4)})</span>
-					<span className={styles.rate}>{rate}</span>
+				<li className="itemFinished" onClick={this.props.onClick}>
+					<div className="itemBasic">
+					{this.props.movie.title} <span className="director_name">by {this.props.movie.director_name}</span>
+					<span className="premier">({this.props.movie.premier.substr(0,4)})</span>
+					<span className="rate">{rate}</span>
 					</div>
 				</li>
 			);

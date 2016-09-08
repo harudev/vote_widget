@@ -5,12 +5,10 @@
   "author": "ruci.k",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server",
-    "product": "node ./public/server.js",
-    "build": "node_modules/.bin/webpack",
-    "build-dev": "node_modules/.bin/webpack-dev-server --progress",
-    "build-run": "node_modules/.bin/webpack --progress && node ./public/server.js"
+    "start": "node server",                                                         // node 서버 실행
+    "build": "node_modules/.bin/webpack",                                           // webpack 적용
+    "build-dev": "node_modules/.bin/webpack-dev-server --progress",                 // webpack 적용 후 개발 서버 실행
+    "build-run": "node_modules/.bin/webpack --progress && node ./public/server.js"  // webpack 적용 후 실행
   },
   "repository": {
     "type": "git",
@@ -25,6 +23,7 @@
     "axios": "^0.14.0",
     "body-parser": "^1.15.2",
     "express": "^4.14.0",
+    "history": "^4.0.0-1",
     "mysql": "^2.11.1",
     "react": "^15.3.1",
     "react-dom": "^15.3.1",
