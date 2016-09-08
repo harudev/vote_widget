@@ -1,7 +1,6 @@
 import React from 'react';
 import axios from 'axios';
 import constants from '../constants';
-import styles from '../../css/vote.css';
 import ResultMovieItem from './result-movie-item';
 
 class VoteResult extends React.Component {
@@ -17,10 +16,19 @@ class VoteResult extends React.Component {
 	}
 	componentDidMount() {
 		if (!this.props.initialData) {
-			this.loadData();
+			this.loadData().then(data => {
+				this.setState({data})
+			});
 		}
+		this.loadInfo();
 	}
 	loadData() {
+		axios.get(constants.serverName +'/api/movies/'+constants.APIKEY+"?search="+this.state.query+"&"+this.props.query,{responseType: 'json'}).then(function(response) {
+			return response.data.Data;
+		});
+	}
+
+	loadInfo() {
 		axios.get(constants.serverName +'/api/vote/'+constants.APIKEY+"?user_id="+this.props.user_id,{responseType: 'json'}).then(function(response) {
 			if (response.data.Data != null) {
 				var result = response.data.Data[0];
@@ -28,16 +36,11 @@ class VoteResult extends React.Component {
 					votedMovieId:result.movie_id,
 					title:result.user_name + " 님의 투표 결과",
 				});
-				axios.get(constants.serverName +'/api/movies/'+constants.APIKEY+"?search="+this.state.query+"&"+this.props.query,{responseType: 'json'}).then(function(response) {
+				axios.get(constants.serverName +'/api/stat/sum/'+constants.APIKEY,{responseType: 'json'}).then(function(response) {
+					console.log(response.data.Data[0].sum);
 					this.setState({
-						data:response.data.Data
+						sum:response.data.Data[0].sum
 					});
-					axios.get(constants.serverName +'/api/stat/sum/'+constants.APIKEY,{responseType: 'json'}).then(function(response) {
-						console.log(response.data.Data[0].sum);
-						this.setState({
-							sum:response.data.Data[0].sum
-						});
-					}.bind(this));
 				}.bind(this));
 				
 			}

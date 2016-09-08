@@ -1,10 +1,13 @@
 import axios from 'axios';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Vote from './components/vote';
-import VoteResult from './components/vote-result';
-import constants from './constants';
+import routes from './routes';
+import {Router} from 'react-router';
+import {browerHistory} from 'react-router';
 
 // test file for react apps
-let user_id=constants.USERID;
-ReactDOM.render(<VoteResult query="" user_id={user_id}/>,document.getElementById('vote-root'));
+ReactDOM.render((
+	<Router history={browerHistory}>
+		{routes}
+	</Router>
+	), document.getElementById('root'));

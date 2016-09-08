@@ -1,7 +1,6 @@
 import React from 'react';
 import axios from 'axios';
 import constants from '../constants';
-import styles from '../../css/vote.css';
 import MovieItem from './movie-item';
 
 class Vote extends React.Component {
@@ -14,37 +13,33 @@ class Vote extends React.Component {
 		}
 	}
 	componentDidMount() {
-		axios.get(constants.serverName +'/api/vote/'+constants.APIKEY+"?user_id="+this.props.user_id,{responseType: 'json'}).then(function(response) {
+		axios.get(constants.serverName +'/api/vote/'+constants.APIKEY+"?user_id="+this.props.params.user,{responseType: 'json'}).then(function(response) {
 			if (response.data.Data != null) {
 				this.props.history.replaceState(null,'/vote_result');
 			}
 			else {
-					if (!this.props.initialData) {
-					this.loadData();
+				if (!this.props.data) {
+					Vote.loadData().then( (data) => {
+						this.setState({data:data.Data})
+					});
 				}
 			}
 		}.bind(this));
 		
 	}
-	loadData() {
-		axios.get(constants.serverName +'/api/movies/'+constants.APIKEY+"?search="+this.state.query+"&"+this.props.query,{responseType: 'json'}).then(function(response) {
-			this.setState({
-				data:response.data.Data
-			});
-		}.bind(this));
-	}
+	
 	render() {
 		const self=this;
 		var movies = this.state.data.map((movie) =>{
-				return <MovieItem key={movie.id} onClick={this.handleClick.bind(this, movie.id, this.props.user_id)} movie={movie}/>						
+				return <MovieItem key={movie.id} onClick={this.handleClick.bind(this, movie.id, this.props.params.user)} movie={movie}/>						
 		});
 		return (
-			<div className={styles.app}>
-				<div className={styles.apptitle}>{this.state.title}</div>
-				<ul className={styles.list}>
+			<div className="app">
+				<div className="apptitle">{this.state.title}</div>
+				<ul className="list">
 					{movies}
 				</ul>
-				<div className={styles.searchApp}>
+				<div className="searchApp">
 					<div>
 						또는...
 					</div>
@@ -100,5 +95,15 @@ class SearchItem extends React.Component {
 	handleFocus() {
 		document.getElementById('search-querystring').value='';
 	}
-}
+};
+
+Vote.propTypes = {
+	initialData:React.PropTypes.any
+};
+
+Vote.loadData = () => {
+	return axios.get(constants.serverName +'/api/movies/'+constants.APIKEY,{responseType: 'json'})
+		.then((response) => response.data);
+};
+
 export default Vote;
