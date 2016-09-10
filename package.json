@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node server",
     "build": "node_modules/.bin/webpack",
-    "build-dev": "node_modules/.bin/webpack-dev-server --progress",
+    "build-dev": "node_modules/.bin/webpack --progress --watch",
     "build-run": "node_modules/.bin/webpack --progress && node ./public/server.js"
   },
   "repository": {

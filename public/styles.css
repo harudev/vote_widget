@@ -76,11 +76,17 @@ input {
 	border:1px solid #ddd;
 }
 
-.itemSelected {
-	background-color:#ffdddd;
-	background-size:50%;
+.itemFinished {
+	position:relative;
 }
 .itemBasic {
+	padding:10px;
+	vertical-align: middle;
+}
+
+.itemFinishedBasic {
+	display:inline-block;
+	width:150px;
 	padding:10px;
 	vertical-align: middle;
 }
@@ -99,6 +105,18 @@ input {
 	font-size:.7em;
 }
 
+.chart {
+	position:absolute;
+	right:10px;
+	top:10px;
+	z-index:777;
+	display:inline-block;
+	background-color:#ffdddd;
+	height:24px;
+}
 .rate {
-	float:right;
+	position:absolute;
+	right:10px;
+	top:10px;
+	z-index:800;
 }

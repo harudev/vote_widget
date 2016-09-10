@@ -12,7 +12,7 @@ class Vote extends React.Component {
 			query:""
 		}
 	}
-	componentDidMount() {
+	componentWillMount() {
 		axios.get(constants.serverName +'/api/vote/'+constants.APIKEY+"?user_id="+this.props.params.user,{responseType: 'json'}).then(function(response) {
 			if (response.data.Data != null) {
 				this.context.router.replace('/vote_result/'+this.props.params.user,null);

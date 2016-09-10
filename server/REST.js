@@ -6,6 +6,71 @@ module.exports = function(conn) {
     'use strict';
     var router = express.Router();
 
+    router.get("/user/:apikey/:userid", function(req, res) {
+        var apikey = req.params.apikey;
+        var host = req.hostname;
+
+        // API key 검증
+        var query = "select * from apiclient where domain='"+host+"' and apikey='"+apikey+"';";
+        conn.query(query, function(err,rows)
+        {
+            // API key 검증 쿼리 수행 에러시 에러 문구 리턴
+            if(err) {
+                res.json({"Error":true, "Message":"Error excuting apiclient query..","Data":null});
+            }
+            else {
+                // 매칭되는 API key가 존재하지 않을 시 에러 문구 리턴
+                if(rows.length == 0) {
+                    res.json({"Error":true, "Message":"Matched API key does not exist","Data":null});
+                }
+                // 매칭되는 API key가 존재할 경우 데이터 조회 후 리턴
+                else {
+                    var query = "select * from users where user_id='"+req.params.userid+"'";
+                    conn.query(query, function(err,rows) {
+                        if(err) {
+                            res.json({"Error":true, "Message":"Error excuting select movie query..","Data":null});
+                        }
+                        else {
+                            res.json({"Error":false, "Message":"Success","Data":rows});
+                        }
+                    });
+                }
+            }
+        });
+    });
+
+    router.post("/user/:apikey", function(req, res) {
+        var apikey = req.params.apikey;
+        var host = req.hostname;
+
+        // API key 검증
+        var query = "select * from apiclient where domain='"+host+"' and apikey='"+apikey+"';";
+        conn.query(query, function(err,rows)
+        {
+            // API key 검증 쿼리 수행 에러시 에러 문구 리턴
+            if(err) {
+                res.json({"Error":true, "Message":"Error excuting apiclient query.."});
+            }
+            else {
+                // 매칭되는 API key가 존재하지 않을 시 에러 문구 리턴
+                if(rows.length == 0) {
+                    res.json({"Error":true, "Message":"Matched API key does not exist"});
+                }
+                // 매칭되는 API key가 존재할 경우 데이터 조회 후 리턴
+                else {
+                    query = "insert into users(user_id, user_name) values ('"+req.params.apikey + req.body.user_id +"','사용자" + req.body.user_id  +"');";
+                    conn.query(query, function(err,rows) {
+                        if(err) {
+                            res.json({"Error":true, "Message":"Error excuting select movie query.."});
+                        }
+                        else {
+                            res.json({"Error":false, "Message":"Success"});
+                        }
+                    });
+                }
+            }
+        });        
+    });
     // 전체 투표수를 가져오는 api
     router.get("/stat/sum/:apikey",function(req,res) { 
         var apikey = req.params.apikey;
@@ -67,20 +132,18 @@ module.exports = function(conn) {
                         flag = true;
                     }
                     if(req.query.year) {// 숫자만 입력되는지 검사할 것
-                        try {
-                            var year = Number(req.query.year);
+                        if (isNaN(Number(req.query.year)))
+                            res.json({"Error":true, "Message":"year parameter is not a number","Data":null});
+                        else {
                             if(flag) {
-                                query = query + "and year(premier)="+year;
+                                query = query + "and year(premier)="+req.query.year;
                             }
                             else {
-                                query = query + "year(premier)="+year;
+                                query = query + "year(premier)="+req.query.year;
                                 flag = true;
                             }
-                                
                         }
-                        catch (err) {
-                            res.json({"Error":true, "Message":"year parameter is not a number","Data":null});
-                        }
+                        
                     }
                     if(req.query.genre) {
                         if(flag) {
@@ -137,17 +200,17 @@ module.exports = function(conn) {
         conn.query(query, function(err,rows) {
             // API key 검증 쿼리 수행 에러시 에러 문구 리턴
             if(err) {
-                res.json({"Error":true, "Message":"Error excuting apiclient query.."});
+                res.json({"Error":true, "Message":"Error excuting apiclient query..","Data":null});
             }
             else {
                 // 매칭되는 API key가 존재하지 않을 시 에러 문구 리턴
                 if(rows.length == 0){
-                    res.json({"Error":true, "Message":"Matched API key does not exist"});
+                    res.json({"Error":true, "Message":"Matched API key does not exist","Data":null});
                 }
                 // 매칭되는 API key가 존재할 경우 데이터 조회 후 리턴
                 else {
                     if(user_id==undefined)
-                        res.json({"Error":true, "Message":"User information undefined"});
+                        res.json({"Error":true, "Message":"User information undefined","Data":null});
                     else {
                         query = "select user_id, movie_id from votes where votes.user_id in (select id from users where users.user_id='" + user_id + "');";
                         conn.query(query, function(err,rows) {
@@ -210,11 +273,31 @@ module.exports = function(conn) {
                         conn.query(query,function(err,rows) {
                             if (err) {
                                 console.log(err);
-                            }
-                            else {
+                                res.json({"Error":true, "Message":err.Message});
+                            } else if(rows.length==0) { // 등록된 유저가 존재하지 않을 경우
+                                query = "insert into votes(user_id, movie_id) select id," + req.body.movie_id
+                                        + " from users where user_id='"+req.params.apikey + req.body.user_id + "';";
+                                conn.query(query, function(err,rows) {
+                                    if(err) {
+                                        console.log(err);
+                                        res.json({"Error":true, "Message":"Error excuting MySQL query.."});
+                                    }
+                                    else {
+                                        query = query + "update movies set vote_count = vote_count + 1 where id = "+req.body.movie_id;
+                                        conn.query(query, function(err,rows) {
+                                            if(err) {
+                                                console.log(err);
+                                                res.json({"Error":true, "Message":"Error updating vote count.."});
+                                            }
+                                            else{
+                                                res.json({"Error":false, "Message":"Success"});
+                                            }
+                                        });
+                                    }
+                                });
+                            } else { // 등록된 유저일 경우
                                 query = "insert into votes(user_id, movie_id) select id," + req.body.movie_id
                                     + " from users where user_id='"+req.params.apikey + req.body.user_id + "'";
-
                                 conn.query(query, function(err,rows) {
                                     if(err) {
                                         console.log(err);

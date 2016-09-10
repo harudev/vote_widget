@@ -3,11 +3,10 @@ const nodeExternals = require('webpack-node-externals');
 
 module.exports = [{
 	name:'browser',
-	devtool:'eval-source-map',
 	entry:__dirname + "/server/browser.js",
 	output: {
 		path: __dirname + "/public",
-		publicPath:'/public/',
+		publicPath:'/public',
 		filename: "bundle.js"
 	},
 	module:{
@@ -31,14 +30,7 @@ module.exports = [{
 			}
 		]
 	},
-	plugins: [new ExtractTextPlugin('styles.css')],
-	devServer:{
-		contentBase:"./templates",
-		colors:true,
-		historyApiFailback:true,
-		inline:true,
-		port:4000
-	}
+	plugins: [new ExtractTextPlugin('styles.css')]
 },
 {
 	name:'server',
@@ -75,7 +67,7 @@ module.exports = [{
 	output: {
 		path:'./public',
 		filename:'server.js',
-		publicPath:'/public/',
+		publicPath:'/public',
 		libraryTarget:'commonjs2'
 	}
 }];

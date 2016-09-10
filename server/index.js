@@ -37,7 +37,7 @@ server.prototype.configureExpress = function(conn) {
 	  res.header("Access-Control-Allow-Headers", "X-Requested-With");
 	  next();
 	});
-	app.set('views','./templates');
+	app.set('views','./public');
 	app.set('view engine','ejs');
 
 	// css 처리를 위한 디렉토리 설정

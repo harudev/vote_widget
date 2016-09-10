@@ -11,16 +11,18 @@ class VoteResult extends React.Component {
 			votedMovieId:0,
 			sum:0,
 			data:this.props.initialData || [],
-			query:""
+			query:"",
+			flag:false
 		}
 	}
-	componentDidMount() {
+	componentWillMount() {
 		if (!this.props.data) {
 			VoteResult.loadData().then( (data) => {
 				this.setState({data:data.Data})
 			});
 		}
 		this.loadInfo();
+		
 	}
 
 	loadInfo() {
@@ -35,7 +37,8 @@ class VoteResult extends React.Component {
 				axios.get(constants.serverName +'/api/stat/sum/'+constants.APIKEY,{responseType: 'json'}).then(function(response) {
 					console.log(response.data.Data[0].sum);
 					this.setState({
-						sum:response.data.Data[0].sum
+						sum:response.data.Data[0].sum,
+						flag:true
 					});
 				}.bind(this));
 				
@@ -47,12 +50,17 @@ class VoteResult extends React.Component {
 		}.bind(this));
 	}
 	render() {
-		const self=this;
+		if(!this.state.flag)
+		{
+			return <div>The responsive it not here yet!</div>
+		}
+
+		let max = this.state.data[0].vote_count * 100 / this.state.sum;
 		var movies = this.state.data.map((movie) =>{
 			if(movie.id == this.state.votedMovieId)
-				return <ResultMovieItem key={movie.id} Voted='T' movie={movie} sum={this.state.sum}/>; // 사용자가 투표한 영화 - 사용자가 투표한 영화 리스트에 없을 경우 처리 필요
+				return <ResultMovieItem key={movie.id} Voted='T' movie={movie} sum={this.state.sum} max={max}/>; // 사용자가 투표한 영화 - 사용자가 투표한 영화 리스트에 없을 경우 처리 필요
 			else
-				return <ResultMovieItem key={movie.id} movie={movie} sum={this.state.sum}/>; // 그 외 영화
+				return <ResultMovieItem key={movie.id} movie={movie} sum={this.state.sum} max={max}/>; // 그 외 영화
 		});
 		return (
 			<div className="app">
